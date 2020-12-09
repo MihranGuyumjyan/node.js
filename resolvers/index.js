@@ -6,17 +6,20 @@ export const resolvers = {
   Mutation: {
     createUser: async (root, args, {}) => {
       const existedUser = await User.findOne({ email: args.email });
-      if (existedUser) throw new ApolloError("User already exist");
+      if (existedUser) throw new ApolloError("User already exists");
       else {
         const hashedPass = await bcrypt.hash(args.password, 10);
         args.password = hashedPass;
         const user = await User.create(args);
-        console.log(args);
         return user;
       }
     },
   },
   Query: {
-    readError: () => "User already exist",
+    readError: () => "User already exisst",
+    getUser: async () => {
+      const userById = await User.findById("5fd06ad4ddfca904dc7f8526").exec();
+      return userById;
+    },
   },
 };
