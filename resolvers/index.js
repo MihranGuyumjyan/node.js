@@ -1,21 +1,22 @@
 import { User } from "../models/users";
+import { ApolloError } from "apollo-server-express";
+import bcrypt from "bcrypt";
 
 export const resolvers = {
   Mutation: {
     createUser: async (root, args, {}) => {
-      await User.findOne({ email: args.email }, function (err, newUser) {
-        if (newUser) {
-          console.log("user already exist");
-          return err;
-        } else {
-          console.log(args);
-          const user = User.create(args);
-          return user;
-        }
-      });
+      const existedUser = await User.findOne({ email: args.email });
+      if (existedUser) throw new ApolloError("User already exist");
+      else {
+        const hashedPass = await bcrypt.hash(args.password, 10);
+        args.password = hashedPass;
+        const user = await User.create(args);
+        console.log(args);
+        return user;
+      }
     },
   },
   Query: {
-    hello: () => "hey",
+    readError: () => "User already exist",
   },
 };
