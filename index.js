@@ -4,9 +4,18 @@ import { resolvers } from "./resolvers";
 import { typeDefs } from "./resolvers/typeDefs";
 import "./env";
 import { connectMongo } from "./db";
+import { verifyToken } from "./helpers/jwt";
 
 connectMongo();
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: ({ req }) => ({
+    userData: req.headers.authorization
+      ? verifyToken(req.headers.authorization)
+      : {},
+  }),
+});
 
 const app = express();
 server.applyMiddleware({ app });

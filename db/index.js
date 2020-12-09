@@ -6,6 +6,7 @@ export const connectMongo = async () => {
       `mongodb://${process.env.MONGODB_HOST}:${process.env.MONGODB_PORT}/${process.env.MONGODB_NAME}`,
       {
         useNewUrlParser: true,
+        useUnifiedTopology: true,
       }
     );
   } catch (err) {
