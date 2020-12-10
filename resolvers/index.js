@@ -25,14 +25,19 @@ export const resolvers = {
 
       const userHistory = await History.findOne({ userId: existedUser._id });
       const date = new Date();
-      if (!userHistory)
-        await History.create({ userId: existedUser._id, lastLogin: date.toISOString() });
-      await History.findOneAndUpdate(
-        { userId: existedUser._id },
-        {
+      if (!userHistory) {
+        await History.create({
+          userId: existedUser._id,
           lastLogin: date.toISOString(),
-        }
-      );
+        });
+      } else {
+        await History.findOneAndUpdate(
+          { userId: existedUser._id },
+          {
+            lastLogin: date.toISOString(),
+          }
+        );
+      }
 
       return { token: generateToken(existedUser._id.toString()) };
     },
