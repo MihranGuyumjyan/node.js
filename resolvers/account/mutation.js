@@ -1,8 +1,10 @@
+import { v4 as uuidv4 } from 'uuid';
+import bcrypt from "bcrypt";
+import { ApolloError } from "apollo-server-express";
 import { User } from "../../models/users";
 import { History } from "../../models/history";
-import { ApolloError } from "apollo-server-express";
-import bcrypt from "bcrypt";
 import { generateToken } from "../../helpers/jwt";
+
 
 export const accountMutations = {
   createUser: async (root, args, {}) => {
@@ -11,7 +13,9 @@ export const accountMutations = {
 
     const hashedPass = await bcrypt.hash(args.password, 10);
     args.password = hashedPass;
-    return await User.create(args);
+    const userId = uuidv4();
+    
+    return await User.create({ ...args, userId });
   },
   login: async (root, args, {}) => {
     const { email, password } = args;

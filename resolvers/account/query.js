@@ -1,13 +1,13 @@
-import { ApolloError } from "apollo-server-express";
 import { User } from "../../models/users";
+import { checkAuth } from '../../helpers/auth';
 
 export const accountQueries = {
   getUser: async (root, {}, { userData }) => {
-    if (!userData || !userData.userId) throw new ApolloError("Unauthorized");
+    checkAuth(userData);
     return await User.findById(userData.userId).exec();
   },
   addAge: async (root, setAge, { userData }) => {
-    if (!userData || !userData.userId) throw new ApolloError("Unauthorized");
+    checkAuth(userData);
     return await User.findByIdAndUpdate(userData.userId, {
       age: setAge.setAge,
     });
