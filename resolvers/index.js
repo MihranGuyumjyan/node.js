@@ -24,17 +24,17 @@ export const resolvers = {
       if (!isValidPassword) throw new ApolloError("incorrect password");
 
       const userHistory = await History.findOne({ userId: existedUser._id });
-      const date = new Date();
+      const date = new Date().toISOString();
       if (!userHistory) {
         await History.create({
           userId: existedUser._id,
-          lastLogin: date.toISOString(),
+          lastLogin: date,
         });
       } else {
         await History.findOneAndUpdate(
           { userId: existedUser._id },
           {
-            lastLogin: date.toISOString(),
+            lastLogin: date,
           }
         );
       }
