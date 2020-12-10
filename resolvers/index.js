@@ -45,7 +45,6 @@ export const resolvers = {
   Query: {
     getUser: async (root, {}, { userData }) => {
       if (!userData || !userData.userId) throw new ApolloError("Unauthorized");
-      console.log(userData);
       return await User.findById(userData.userId).exec();
     },
     addAge: async (root, setAge, { userData }) => {
