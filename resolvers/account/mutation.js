@@ -22,26 +22,26 @@ export const accountMutations = {
 
     const existedUser = await User.findOne({ email });
     if (!existedUser) throw new ApolloError("User not found");
-
+    
     const isValidPassword = bcrypt.compare(password, existedUser.password);
     if (!isValidPassword) throw new ApolloError("incorrect password");
 
-    const userHistory = await History.findOne({ userId: existedUser._id });
+    const userHistory = await History.findOne({ userId: existedUser.userId });
     const date = new Date().toISOString();
     if (!userHistory) {
       await History.create({
-        userId: existedUser._id,
+        userId: existedUser.userId,
         lastLogin: date,
       });
     } else {
       await History.findOneAndUpdate(
-        { userId: existedUser._id },
+        { userId: existedUser.userId },
         {
           lastLogin: date,
         }
       );
     }
 
-    return { token: generateToken(existedUser._id.toString()) };
+    return { token: generateToken(existedUser.userId) };
   },
 };
