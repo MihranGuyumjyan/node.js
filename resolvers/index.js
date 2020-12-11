@@ -1,5 +1,5 @@
 import { accountQueries, accountMutations } from "./account";
-import { offerMutations } from "./offer";
+import { offerMutations, offerQueries } from "./offer";
 
 export const resolvers = {
   Mutation: {
@@ -8,5 +8,6 @@ export const resolvers = {
   },
   Query: {
     ...accountQueries,
+    ...offerQueries
   },
 };
