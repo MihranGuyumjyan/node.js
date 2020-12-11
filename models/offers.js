@@ -1,15 +1,15 @@
 import { Schema, model } from "mongoose";
 
 const OfferSchema = new Schema({
-    userId: { Type: String, required: true},
-    title: { Type: String, required: true},
-    productType: { Type: String, required: true },
+    userId: { type: String, required: true},
+    title: { type: String, required: true},
+    productType: { type: String, required: true },
     price: { 
-        value: { Type: Number, required: true}, 
-        currency: { Type: String, required: true } 
+        value: { type: Number, required: true}, 
+        currency: { type: String, required: true } 
     },
-    condition: { Type: String, required: true },
-    description: { Type: String }
+    condition: { type: String, required: true },
+    description: { type: String }
     }, {
     timestamps: true,
   }
