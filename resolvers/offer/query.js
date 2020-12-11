@@ -5,15 +5,19 @@ export const offerQueries = {
   getOffer: async (root, args, { userData }) => {
     checkAuth(userData);
 
-    const { condition, min, max } = args;
+    const { condition, minPrice, maxPrice } = args;
 
-    if (condition) return await Offer.find({ condition: condition }).exec();
+    const filter = {};
+    if (condition)
+        Object.assign(filter, { "condition": condition })
 
-    if (min && max)
-      return await Offer.find({ "price.value": { $gte: min, $lte: max } });
-    if (min) return await Offer.find({ "price.value": { $gte: min } });
-    if (max) return await Offer.find({ "price.value": { $lte: max } });
+    if (minPrice && maxPrice)
+        Object.assign(filter, {"price.value": { $gte: minPrice, $lte: maxPrice}})
+    else if (minPrice) 
+        Object.assign(filter, {"price.value": { $gte: minPrice}})
+    else if (maxPrice) 
+        Object.assign(filter, {"price.value": { $lte: maxPrice}})
 
-    return await Offer.find({});
+    return await Offer.find(filter);
   },
 };

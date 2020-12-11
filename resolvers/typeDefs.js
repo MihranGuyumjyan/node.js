@@ -4,7 +4,7 @@ export const typeDefs = gql`
   type Query {
     getUser: User
     addAge(setAge: Int!): User
-    getOffer(condition: ProductCondition min: Float max: Float): [Offer]
+    getOffer(condition: ProductCondition minPrice: Float maxPrice: Float): [Offer]
   }
   type Mutation {
     createUser(
