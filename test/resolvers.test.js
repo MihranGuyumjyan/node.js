@@ -110,14 +110,13 @@ describe("resolvers", () => {
       password: testUser.password,
     });
 
-    expect(Array.isArray(wrongEmailResponse.errors)).toBeTruthy();
-    expect(wrongEmailResponse.errors).not.toHaveLength(0);
-
     const wrongPassResponse = await graphqlTestCall(loginMutation, {
       email: testUser.email,
       password: fakeAccount.password,
     });
 
+    expect(Array.isArray(wrongEmailResponse.errors)).toBeTruthy();
+    expect(wrongEmailResponse.errors).not.toHaveLength(0);
     expect(Array.isArray(wrongPassResponse.errors)).toBeTruthy();
     expect(wrongPassResponse.errors).not.toHaveLength(0);
   });
