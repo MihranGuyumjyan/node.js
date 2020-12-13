@@ -23,7 +23,7 @@ export const accountMutations = {
     const existedUser = await User.findOne({ email });
     if (!existedUser) throw new ApolloError("User not found");
     
-    const isValidPassword = bcrypt.compare(password, existedUser.password);
+    const isValidPassword = await bcrypt.compare(password, existedUser.password);
     if (!isValidPassword) throw new ApolloError("incorrect password");
 
     const userHistory = await History.findOne({ userId: existedUser.userId });

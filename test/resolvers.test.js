@@ -93,7 +93,7 @@ describe("resolvers", () => {
     expect.stringContaining(loginResponse.data.login.token)
   });
 
-  it("should fail login without email", async () => {
+  it("should fail login with wrong email or password", async () => {
     const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
     
     await graphqlTestCall(createUserMutation, {
@@ -103,12 +103,23 @@ describe("resolvers", () => {
       firstName: testUser.firstName
     });
 
-    const loginResponse = await graphqlTestCall(loginMutation, {
+    const fakeAccount = { email: "zareh@gmail.com", password: "wrong" }
+
+    const wrongEmailResponse = await graphqlTestCall(loginMutation, {
+      email: fakeAccount.email,
       password: testUser.password,
     });
-    
-    expect(Array.isArray(loginResponse.errors)).toBeTruthy();
-    expect(loginResponse.errors).not.toHaveLength(0);
+
+    expect(Array.isArray(wrongEmailResponse.errors)).toBeTruthy();
+    expect(wrongEmailResponse.errors).not.toHaveLength(0);
+
+    const wrongPassResponse = await graphqlTestCall(loginMutation, {
+      email: testUser.email,
+      password: fakeAccount.password,
+    });
+
+    expect(Array.isArray(wrongPassResponse.errors)).toBeTruthy();
+    expect(wrongPassResponse.errors).not.toHaveLength(0);
   });
 
 });
