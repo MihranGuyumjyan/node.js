@@ -1,6 +1,7 @@
 import { graphqlTestCall } from "./graphqlTestCall";
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { User } from "../models/users";
 
 let mongoServer;
 const opts = { }; 
@@ -42,6 +43,28 @@ const loginMutation = `
       login(email: $email, password: $password) {
         token
       }
+  }
+`;
+
+const getUserQuery = `
+  query getUser {
+    getUser {
+      firstName
+      lastName
+      email
+      userId
+    }
+  }
+`;
+
+const addAgeQuery = `
+  query addAge($setAge: Int!) {
+    addAge(setAge: $setAge) {
+      firstName
+      lastName
+      email
+      userId
+    }
   }
 `;
 
@@ -119,6 +142,51 @@ describe("resolvers", () => {
     expect(wrongEmailResponse.errors).not.toHaveLength(0);
     expect(Array.isArray(wrongPassResponse.errors)).toBeTruthy();
     expect(wrongPassResponse.errors).not.toHaveLength(0);
+  });
+
+});
+
+describe("queries", () => {
+
+  it("should get user information", async () => {
+    const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
+      
+    await graphqlTestCall(createUserMutation, {
+      email: testUser.email,
+      password: testUser.password,
+      lastName: testUser.lastName,
+      firstName: testUser.firstName
+    });
+    
+    const userData = await User.findOne({ email: "mihran@gmail.com" })
+
+    const userResponse = await graphqlTestCall(getUserQuery, {},  userData.userId );
+
+    const expectedUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", userId: userResponse.data.getUser.userId };
+  
+    expect(userResponse.data.getUser).toEqual(expectedUser);
+  });
+
+  it("should add age to users collection", async () => {
+
+    const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
+      
+    await graphqlTestCall(createUserMutation, {
+      email: testUser.email,
+      password: testUser.password,
+      lastName: testUser.lastName,
+      firstName: testUser.firstName
+    });
+    
+    const userData = await User.findOne({ email: "mihran@gmail.com" });
+
+    const addedAge = { setAge: 20 }; 
+
+    await graphqlTestCall(addAgeQuery, addedAge, userData.userId );
+
+    const expectedResponse = await User.findOne({ email: "mihran@gmail.com" })
+  
+    expect(addedAge.setAge).toEqual(expectedResponse.age);
   });
 
 });

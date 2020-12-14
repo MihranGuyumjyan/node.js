@@ -17,10 +17,8 @@ export const graphqlTestCall = async (
     query,
     undefined,
     {
-      req: {
-        userData: {
-          userId
-        }
+      userData: {
+        userId
       },
     },
     variables
