@@ -1,31 +1,5 @@
-import { graphqlTestCall } from "./graphqlTestCall";
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { graphqlTestCall } from "./helper/graphqlTestCall";
 import { User } from "../models/users";
-
-let mongoServer;
-const opts = { }; 
-
-beforeAll(async () => {
-  mongoServer = new MongoMemoryServer();
-  const mongoUri = await mongoServer.getUri();
-  await mongoose.connect(mongoUri, opts, (err) => {
-    if (err) console.error(err);
-  });
-});
-
-beforeEach(async () => {
-  const collections = mongoose.connection.collections;
-  for (const key in collections) {
-    const collection = collections[key];
-    await collection.deleteMany({});
-  }
-});
-
-afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
-});
 
 const createUserMutation = `
   mutation createUser($firstName: String!, $lastName: String!, $email: String!, $password: String!) {
@@ -82,6 +56,27 @@ describe("resolvers", () => {
       
       expect(offerResponse.data.createOffer).toEqual({...testOffer, userId: userData.userId});
     });
+
+    it("should not create product offer without a title", async () => {
+        const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
+        
+        await graphqlTestCall(createUserMutation, {
+          email: testUser.email,
+          password: testUser.password,
+          lastName: testUser.lastName,
+          firstName: testUser.firstName
+        });
+  
+        const userData = await User.findOne({ email: "mihran@gmail.com" })
+  
+        const testOffer = { productType: "car", condition: "USED", price: { value: 50, currency: "USD" }}
+        
+        const offerResponse = await graphqlTestCall(createOfferMutation, { ...testOffer, userId: userData.userId }, userData.userId );    
+        
+        expect(Array.isArray(offerResponse.errors)).toBeTruthy();
+        expect(offerResponse.errors).not.toHaveLength(0);
+      });
+
 });
 
 
