@@ -1,22 +1,14 @@
 import { gql } from "apollo-server-express";
 
-export const typeDefs = gql`
-  type Query {
-    getUser: User
-    addAge(setAge: Int!): User
-    getOffer(condition: ProductCondition minPrice: Float maxPrice: Float): [Offer]
+export const offerTypeDefs = gql`
+  extend type Query {
+    getOffer(
+      condition: ProductCondition
+      minPrice: Float
+      maxPrice: Float
+    ): [Offer]
   }
-  type Mutation {
-    createUser(
-      firstName: String!
-      lastName: String!
-      email: String!
-      password: String!
-    ): User
-    login(
-      email: String!
-      password: String!
-    ): LoginResponse
+  extend type Mutation {
     createOffer(
       title: String!
       productType: String!
@@ -24,15 +16,6 @@ export const typeDefs = gql`
       description: String
       price: InputPrice!
     ): Offer
-  }
-  type User {
-    firstName: String
-    lastName: String
-    email: String
-    userId: String
-  }
-  type LoginResponse {
-    token: String
   }
   enum ProductCondition {
     NEW

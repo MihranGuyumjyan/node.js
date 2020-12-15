@@ -10,6 +10,6 @@ export const accountQueries = {
     checkAuth(userData);
     return await User.findOneAndUpdate( {userId: userData.userId }, {
       age: setAge.setAge,
-    });
+    }, {new: true});
   },
 };

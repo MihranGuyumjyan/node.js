@@ -1,5 +1,6 @@
 process.env.JWT_SECRET="secret"
 module.exports = {
+    setupFilesAfterEnv: ['<rootDir>/test/setup/setupTests.js'],
     globals: {
         "__DEV__": true
     },

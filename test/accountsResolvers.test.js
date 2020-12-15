@@ -1,30 +1,5 @@
-import { graphqlTestCall } from "./graphqlTestCall";
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-
-let mongoServer;
-const opts = { }; 
-
-beforeAll(async () => {
-  mongoServer = new MongoMemoryServer();
-  const mongoUri = await mongoServer.getUri();
-  await mongoose.connect(mongoUri, opts, (err) => {
-    if (err) console.error(err);
-  });
-});
-
-beforeEach(async () => {
-  const collections = mongoose.connection.collections;
-  for (const key in collections) {
-    const collection = collections[key];
-    await collection.deleteMany({});
-  }
-});
-
-afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
-});
+import { graphqlTestCall } from "./helper/graphqlTestCall";
+import { User } from "../models/users";
 
 const createUserMutation = `
   mutation createUser($firstName: String!, $lastName: String!, $email: String!, $password: String!) {
@@ -45,7 +20,30 @@ const loginMutation = `
   }
 `;
 
-describe("resolvers", () => {
+const getUserQuery = `
+  query getUser {
+    getUser {
+      firstName
+      lastName
+      email
+      userId
+    }
+  }
+`;
+
+const addAgeQuery = `
+  query addAge($setAge: Int!) {
+    addAge(setAge: $setAge) {
+      firstName
+      lastName
+      email
+      userId
+      age
+    }
+  }
+`;
+
+describe("mutations", () => {
 
   it("should create a user", async () => {
     const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
@@ -119,6 +117,63 @@ describe("resolvers", () => {
     expect(wrongEmailResponse.errors).not.toHaveLength(0);
     expect(Array.isArray(wrongPassResponse.errors)).toBeTruthy();
     expect(wrongPassResponse.errors).not.toHaveLength(0);
+  });
+
+});
+
+describe("queries", () => {
+
+  it("should get user information", async () => {
+    const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
+      
+    const userData = await graphqlTestCall(createUserMutation, {
+      email: testUser.email,
+      password: testUser.password,
+      lastName: testUser.lastName,
+      firstName: testUser.firstName
+    });
+
+    const userResponse = await graphqlTestCall(getUserQuery, {},  userData.data.createUser.userId );
+    
+    const expectedUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", userId: userResponse.data.getUser.userId };
+  
+    expect(userResponse.data.getUser).toEqual(expectedUser);
+  });
+
+  it("should not get user information without userId", async () => {
+    const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
+      
+    await graphqlTestCall(createUserMutation, {
+      email: testUser.email,
+      password: testUser.password,
+      lastName: testUser.lastName,
+      firstName: testUser.firstName
+    });
+
+    const userResponse = await graphqlTestCall(getUserQuery, {} );
+
+    expect(Array.isArray(userResponse.errors)).toBeTruthy();
+    expect(userResponse.errors).not.toHaveLength(0);
+  });
+
+  it("should add age to users collection", async () => {
+
+    const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
+      
+    const userData = await graphqlTestCall(createUserMutation, {
+      email: testUser.email,
+      password: testUser.password,
+      lastName: testUser.lastName,
+      firstName: testUser.firstName
+    });
+
+    const addedAge = { setAge: 20 }; 
+
+    await graphqlTestCall(addAgeQuery, addedAge, userData.data.createUser.userId );
+
+    const expectedResponse = await User.findOne({ email: "mihran@gmail.com" })
+  
+    expect(expectedResponse.age).toEqual(addedAge.setAge);
   });
 
 });
