@@ -1,5 +1,4 @@
 import { graphqlTestCall } from "./helper/graphqlTestCall";
-import { User } from "../models/users";
 
 const createUserMutation = `
   mutation createUser($firstName: String!, $lastName: String!, $email: String!, $password: String!) {
@@ -36,42 +35,38 @@ const getOfferQuery = `
     }
 `;
 
-describe("resolvers", () => {
+describe("mutations", () => {
 
     it("should create product offer", async () => {
       const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
       
-      await graphqlTestCall(createUserMutation, {
+      const userData = await graphqlTestCall(createUserMutation, {
         email: testUser.email,
         password: testUser.password,
         lastName: testUser.lastName,
         firstName: testUser.firstName
       });
 
-      const userData = await User.findOne({ email: "mihran@gmail.com" })
-
       const testOffer = { title: "bmw", productType: "car", condition: "USED", price: { value: 50, currency: "USD" }}
       
-      const offerResponse = await graphqlTestCall(createOfferMutation, { ...testOffer, userId: userData.userId }, userData.userId );    
+      const offerResponse = await graphqlTestCall(createOfferMutation, testOffer, userData.data.createUser.userId );    
       
-      expect(offerResponse.data.createOffer).toEqual({...testOffer, userId: userData.userId});
+      expect(offerResponse.data.createOffer).toEqual({...testOffer, userId: userData.data.createUser.userId});
     });
 
     it("should not create product offer without a title", async () => {
         const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
         
-        await graphqlTestCall(createUserMutation, {
+        const userData = await graphqlTestCall(createUserMutation, {
           email: testUser.email,
           password: testUser.password,
           lastName: testUser.lastName,
           firstName: testUser.firstName
         });
   
-        const userData = await User.findOne({ email: "mihran@gmail.com" })
-  
         const testOffer = { productType: "car", condition: "USED", price: { value: 50, currency: "USD" }}
         
-        const offerResponse = await graphqlTestCall(createOfferMutation, { ...testOffer, userId: userData.userId }, userData.userId );    
+        const offerResponse = await graphqlTestCall(createOfferMutation, testOffer, userData.data.createUser.userId );    
         
         expect(Array.isArray(offerResponse.errors)).toBeTruthy();
         expect(offerResponse.errors).not.toHaveLength(0);
@@ -85,24 +80,22 @@ describe("queries", () => {
     it("should get products offers", async () => {
       const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
       
-      await graphqlTestCall(createUserMutation, {
+      const userData = await graphqlTestCall(createUserMutation, {
         email: testUser.email,
         password: testUser.password,
         lastName: testUser.lastName,
         firstName: testUser.firstName
       });
 
-      const userData = await User.findOne({ email: "mihran@gmail.com" })
-
       const testOfferOne = { title: "bmw", productType: "car", condition: "USED", price: { value: 50, currency: "USD" }}
       const testOfferTwo = { title: "mercedes", productType: "car", condition: "NEW", price: { value: 15, currency: "USD" }}
       
-      await graphqlTestCall(createOfferMutation, { ...testOfferOne, userId: userData.userId }, userData.userId );
-      await graphqlTestCall(createOfferMutation, { ...testOfferTwo, userId: userData.userId }, userData.userId );
+      await graphqlTestCall(createOfferMutation, testOfferOne, userData.data.createUser.userId );
+      await graphqlTestCall(createOfferMutation, testOfferTwo, userData.data.createUser.userId );
 
-      const offerResponse = await graphqlTestCall(getOfferQuery, {}, userData.userId );
+      const offerResponse = await graphqlTestCall(getOfferQuery, {}, userData.data.createUser.userId );
 
-      const expectedResponse = [{ ...testOfferOne, userId: userData.userId }, { ...testOfferTwo, userId: userData.userId }];
+      const expectedResponse = [{ ...testOfferOne, userId: userData.data.createUser.userId }, { ...testOfferTwo, userId: userData.data.createUser.userId }];
     
       expect(offerResponse.data.getOffer).toEqual(expectedResponse);
     });
@@ -110,24 +103,22 @@ describe("queries", () => {
     it("should get product offers with filters", async () => {
         const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
         
-        await graphqlTestCall(createUserMutation, {
+        const userData = await graphqlTestCall(createUserMutation, {
           email: testUser.email,
           password: testUser.password,
           lastName: testUser.lastName,
           firstName: testUser.firstName
         });
   
-        const userData = await User.findOne({ email: "mihran@gmail.com" })
-  
         const testOfferOne = { title: "bmw", productType: "car", condition: "USED", price: { value: 50, currency: "USD" }}
         const testOfferTwo = { title: "mercedes", productType: "car", condition: "NEW", price: { value: 15, currency: "USD" }}
         
-        await graphqlTestCall(createOfferMutation, { ...testOfferOne, userId: userData.userId }, userData.userId );
-        await graphqlTestCall(createOfferMutation, { ...testOfferTwo, userId: userData.userId }, userData.userId );
+        await graphqlTestCall(createOfferMutation, testOfferOne, userData.data.createUser.userId );
+        await graphqlTestCall(createOfferMutation, testOfferTwo, userData.data.createUser.userId );
   
-        const offerResponse = await graphqlTestCall(getOfferQuery, { condition: "NEW", minPrice: 10, maxPrice: 40 }, userData.userId );
+        const offerResponse = await graphqlTestCall(getOfferQuery, { condition: "NEW", minPrice: 10, maxPrice: 40 }, userData.data.createUser.userId );
         
-        const expectedResponse = [{ ...testOfferTwo, userId: userData.userId }];
+        const expectedResponse = [{ ...testOfferTwo, userId: userData.data.createUser.userId }];
       
         expect(offerResponse.data.getOffer).toEqual(expectedResponse);
       });

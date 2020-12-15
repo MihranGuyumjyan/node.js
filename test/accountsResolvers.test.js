@@ -42,7 +42,7 @@ const addAgeQuery = `
   }
 `;
 
-describe("resolvers", () => {
+describe("mutations", () => {
 
   it("should create a user", async () => {
     const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
@@ -125,17 +125,15 @@ describe("queries", () => {
   it("should get user information", async () => {
     const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
       
-    await graphqlTestCall(createUserMutation, {
+    const userData = await graphqlTestCall(createUserMutation, {
       email: testUser.email,
       password: testUser.password,
       lastName: testUser.lastName,
       firstName: testUser.firstName
     });
+
+    const userResponse = await graphqlTestCall(getUserQuery, {},  userData.data.createUser.userId );
     
-    const userData = await User.findOne({ email: "mihran@gmail.com" })
-
-    const userResponse = await graphqlTestCall(getUserQuery, {},  userData.userId );
-
     const expectedUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", userId: userResponse.data.getUser.userId };
   
     expect(userResponse.data.getUser).toEqual(expectedUser);
@@ -161,22 +159,20 @@ describe("queries", () => {
 
     const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
       
-    await graphqlTestCall(createUserMutation, {
+    const userData = await graphqlTestCall(createUserMutation, {
       email: testUser.email,
       password: testUser.password,
       lastName: testUser.lastName,
       firstName: testUser.firstName
     });
-    
-    const userData = await User.findOne({ email: "mihran@gmail.com" });
 
     const addedAge = { setAge: 20 }; 
 
-    await graphqlTestCall(addAgeQuery, addedAge, userData.userId );
+    await graphqlTestCall(addAgeQuery, addedAge, userData.data.createUser.userId );
 
     const expectedResponse = await User.findOne({ email: "mihran@gmail.com" })
   
-    expect(addedAge.setAge).toEqual(expectedResponse.age);
+    expect(expectedResponse.age).toEqual(addedAge.setAge);
   });
 
 });
