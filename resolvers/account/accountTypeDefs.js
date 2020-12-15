@@ -20,6 +20,7 @@ type Query {
     lastName: String
     email: String
     userId: String
+    age: Int!
   }
   type LoginResponse {
     token: String
