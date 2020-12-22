@@ -6,16 +6,14 @@ import { offerTypeDefs } from "./resolvers/offer/offerTypeDefs";
 import { adminTypeDefs } from "./resolvers/admin/adminTypeDefs";
 import "./env";
 import { connectMongo } from "./db";
-import { verifyToken } from "./helpers/jwt";
+import { getUserDataFromToken } from "./helpers/jwt";
 
 connectMongo();
 const server = new ApolloServer({
   typeDefs: [accountTypeDefs, offerTypeDefs, adminTypeDefs],
   resolvers,
   context: ({ req }) => ({
-    userData: req.headers.authorization
-      ? verifyToken(req.headers.authorization)
-      : {},
+    userData: getUserDataFromToken(req.headers.authorization)
   }),
 });
 

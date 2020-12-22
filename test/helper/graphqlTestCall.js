@@ -10,7 +10,8 @@ const schema = makeExecutableSchema({ typeDefs: [accountTypeDefs, offerTypeDefs,
 export const graphqlTestCall = async (
   query,
   variables,
-  userId
+  userId,
+  adminId
 ) => {
   return graphql(
     schema,
@@ -18,7 +19,8 @@ export const graphqlTestCall = async (
     undefined,
     {
       userData: {
-        userId
+        userId, 
+        adminId
       },
     },
     variables

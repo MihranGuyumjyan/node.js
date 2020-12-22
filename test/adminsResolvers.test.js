@@ -87,6 +87,7 @@ describe("queries", () => {
     const userResponse = await graphqlTestCall(
       getAllUsersQuery,
       {},
+      null,
       admin.adminId
     );
 
