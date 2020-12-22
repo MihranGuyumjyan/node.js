@@ -10,6 +10,26 @@ export const generateToken = (id) => {
   );
 };
 
+export const generateAdminToken = (id) => {
+  return jwt.sign(
+    {
+      adminId: id,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "10h" }
+  );
+};
+
 export const verifyToken = (token) => {
   return jwt.verify(token, process.env.JWT_SECRET);
+};
+
+export const getUserDataFromToken = (token) => {
+  if (token) {
+    const userData = verifyToken(token);
+    console.log(userData)
+    if (userData) return userData;
+  }
+
+  return {};
 };

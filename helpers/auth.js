@@ -6,3 +6,10 @@ export const checkAuth = (userData) => {
 
   return
 };
+
+export const checkAdminAuth = (userData) => {
+  if (!userData || !userData.adminId) 
+    throw new ApolloError("Unauthorized");
+
+  return
+};
