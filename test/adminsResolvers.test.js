@@ -93,7 +93,7 @@ describe("queries", () => {
 
     delete testUser1.password;
     delete testUser2.password;
-
+    
     expect(userResponse.data.getAllUsers).toEqual([testUser1, testUser2]);
   });
 

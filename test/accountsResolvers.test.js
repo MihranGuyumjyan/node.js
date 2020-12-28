@@ -12,6 +12,17 @@ const createUserMutation = `
   }
 `;
 
+const verificationMutation = `
+  mutation verification($email: String!, verificationCode: Int!) {
+    verification(email: $email, verificationCode: $verificationCode) {
+      firstName
+      lastName
+      email
+      userId
+    }
+  }
+`;
+
 const loginMutation = `
   mutation login($email: String!, $password: String!) {
       login(email: $email, password: $password) {
@@ -73,6 +84,36 @@ describe("mutations", () => {
     expect(registerResponse.errors).not.toHaveLength(0);
   });
 
+  it("should fail verification with wrong email or verificationCode", async () => {
+    const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran.guyumjyan@mail.ru", password: "pass" };
+    
+    await graphqlTestCall(createUserMutation, {
+      email: testUser.email,
+      password: testUser.password,
+      lastName: testUser.lastName,
+      firstName: testUser.firstName
+    });
+
+    const userData = await User.findOne({ email: testUser.email })
+
+    const fakeVerificationInformation = { email: "zareh@gmail.com", secretNumber: 115475 }
+
+    const wrongEmailResponse = await graphqlTestCall(verificationMutation, {
+      email: fakeVerificationInformation.email,
+      verificationCode: userData.secretNumber,
+    });
+
+    const wrongNumberResponse = await graphqlTestCall(verificationMutation, {
+      email: testUser.email,
+      verificationCode: fakeVerificationInformation.secretNumber,
+    });
+
+    expect(Array.isArray(wrongEmailResponse.errors)).toBeTruthy();
+    expect(wrongEmailResponse.errors).not.toHaveLength(0);
+    expect(Array.isArray(wrongNumberResponse.errors)).toBeTruthy();
+    expect(wrongNumberResponse.errors).not.toHaveLength(0);
+  });
+
   it("should login succesfully", async () => {
     const testUser = { firstName: "Mihran", lastName: "Guyumjyan", email: "mihran@gmail.com", password: "pass" };
     
@@ -81,6 +122,10 @@ describe("mutations", () => {
       password: testUser.password,
       lastName: testUser.lastName,
       firstName: testUser.firstName
+    });
+
+    await User.findOneAndUpdate({ email: testUser.email }, {
+      isVerified: true,
     });
 
     const loginResponse = await graphqlTestCall(loginMutation, {

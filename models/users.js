@@ -7,7 +7,9 @@ const UserSchema = new Schema(
     email: { type: String, unique: true },
     password: { type: String, required: true },
     age: { type: Number },
-    userId: { type: String, required: true }
+    userId: { type: String, required: true },
+    isVerified: { type: Boolean },
+    secretNumber: { type: Number },
   }, {
     timestamps: true,
   }

@@ -8,7 +8,7 @@ export const accountQueries = {
   },
   addAge: async (root, setAge, { userData }) => {
     checkAuth(userData);
-    return await User.findOneAndUpdate( {userId: userData.userId }, {
+    return await User.findOneAndUpdate({ userId: userData.userId }, {
       age: setAge.setAge,
     }, {new: true});
   },

@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sendgrid/mail": "^7.4.0",
     "@types/mongoose": "^5.10.2",
     "apollo-server-express": "^2.19.0",
     "babel-polyfill": "^6.26.0",
@@ -21,6 +22,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb-memory-server": "^6.9.2",
     "mongoose": "^5.11.5",
+    "nanoid": "^3.1.20",
     "nodemon": "^2.0.6",
     "uuid": "^8.3.2"
   },

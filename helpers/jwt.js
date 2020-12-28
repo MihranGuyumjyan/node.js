@@ -27,7 +27,6 @@ export const verifyToken = (token) => {
 export const getUserDataFromToken = (token) => {
   if (token) {
     const userData = verifyToken(token);
-    console.log(userData)
     if (userData) return userData;
   }
 

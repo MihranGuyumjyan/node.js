@@ -14,6 +14,7 @@ type Query {
       password: String!
     ): User
     login(email: String!, password: String!): LoginResponse
+    verification(email: String!, verificationCode: Int!): User
   }
   type User {
     firstName: String
